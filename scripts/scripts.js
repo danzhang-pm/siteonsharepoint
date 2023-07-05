@@ -14,8 +14,11 @@ import {
 } from './lib-franklin.js';
 
 const LCP_BLOCKS = []; // add your LCP blocks to the list
-window.hlx.RUM_GENERATION = 'project-1'; // add your RUM generation information here
 
+/**
+ * Builds hero block and prepends to main in a new section.
+ * @param {Element} main The container element
+ */
 function buildHeroBlock(main) {
   const h1 = main.querySelector('h1');
   const picture = main.querySelector('picture');
@@ -55,7 +58,8 @@ export function decorateMain(main) {
 }
 
 /**
- * loads everything needed to get to LCP.
+ * Loads everything needed to get to LCP.
+ * @param {Element} doc The container element
  */
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
@@ -63,29 +67,14 @@ async function loadEager(doc) {
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
+    document.body.classList.add('appear');
     await waitForLCP(LCP_BLOCKS);
   }
 }
 
 /**
- * Adds the favicon.
- * @param {string} href The favicon URL
- */
-export function addFavIcon(href) {
-  const link = document.createElement('link');
-  link.rel = 'icon';
-  link.type = 'image/svg+xml';
-  link.href = href;
-  const existingLink = document.querySelector('head link[rel="icon"]');
-  if (existingLink) {
-    existingLink.parentElement.replaceChild(link, existingLink);
-  } else {
-    document.getElementsByTagName('head')[0].appendChild(link);
-  }
-}
-
-/**
- * loads everything that doesn't need to be delayed.
+ * Loads everything that doesn't need to be delayed.
+ * @param {Element} doc The container element
  */
 async function loadLazy(doc) {
   const main = doc.querySelector('main');
@@ -99,15 +88,14 @@ async function loadLazy(doc) {
   loadFooter(doc.querySelector('footer'));
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
-  addFavIcon(`${window.hlx.codeBasePath}/styles/favicon.svg`);
   sampleRUM('lazy');
   sampleRUM.observe(main.querySelectorAll('div[data-block-name]'));
   sampleRUM.observe(main.querySelectorAll('picture > img'));
 }
 
 /**
- * loads everything that happens a lot later, without impacting
- * the user experience.
+ * Loads everything that happens a lot later,
+ * without impacting the user experience.
  */
 function loadDelayed() {
   // eslint-disable-next-line import/no-cycle
